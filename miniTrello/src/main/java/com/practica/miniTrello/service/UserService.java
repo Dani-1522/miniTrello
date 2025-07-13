@@ -3,7 +3,7 @@ package com.practica.miniTrello.service;
 import com.practica.miniTrello.entity.Role;
 import com.practica.miniTrello.entity.User;
 import com.practica.miniTrello.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 

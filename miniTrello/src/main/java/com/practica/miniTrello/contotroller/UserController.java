@@ -2,8 +2,7 @@ package com.practica.miniTrello.contotroller;
 
 import com.practica.miniTrello.entity.User;
 import com.practica.miniTrello.service.UserService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
