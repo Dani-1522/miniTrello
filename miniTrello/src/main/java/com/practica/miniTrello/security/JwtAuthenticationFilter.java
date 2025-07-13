@@ -50,11 +50,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             User user = userRepository.findByUsername(username).orElse(null);
 
             if (user != null && jwtService.isTokenValid(jwt, user)) {
+                UserDetailsImpl userDetails = new UserDetailsImpl(user);
+
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                user, null,
-                                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
-                        );
+                                userDetails, null,
+                                userDetails.getAuthorities()
+                                );
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
