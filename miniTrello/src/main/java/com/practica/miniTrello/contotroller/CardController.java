@@ -35,6 +35,18 @@ public class CardController {
         return ResponseEntity.ok(cardService.getCardsByList(listId, authentication.getName()));
     }
 
+    @PutMapping("/move/{cardId}")
+    public ResponseEntity<Void> moveCard(@PathVariable Long cardId,
+                                         @RequestBody Map<String, Object> body,
+                                         Authentication auth) {
+        Long targetListId = Long.valueOf(body.get("targetListId").toString());
+        int newPosition = Integer.parseInt(body.get("newPosition").toString());
+
+        cardService.moveCard(cardId, targetListId, newPosition, auth.getName());
+        return ResponseEntity.ok().build();
+    }
+
+
     @PutMapping("/{id}")
     public ResponseEntity<Card> update(@PathVariable Long id,
                                        @RequestBody Map<String, String> body,

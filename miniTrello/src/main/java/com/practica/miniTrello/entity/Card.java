@@ -23,4 +23,7 @@ public class Card {
     @ManyToOne
     @JoinColumn(name = "list_id")
     private BoardList boardList;
+
+    @Column(nullable = false)
+    private Integer position;
 }
