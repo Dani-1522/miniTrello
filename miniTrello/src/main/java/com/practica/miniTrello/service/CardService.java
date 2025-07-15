@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -109,6 +110,24 @@ public class CardService {
 
         card.getCollaborators().remove(userToRemove);
         cardRepository.save(card);
+    }
+
+    public Card updateDueDate(Long cardId, LocalDateTime dueDate, String username) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new NoSuchElementException("Card not found"));
+
+        if (!card.getBoardList().getBoard().getOwner().getUsername().equals(username)) {
+            throw new AccessDeniedException("Only board owner can assign users.");
+        }
+        card.setDueDate(dueDate);
+        return cardRepository.save(card);
+    }
+
+    public List<Card> getUpcomingDueCards(String username) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime tomorrow = now.plusDays(1);
+
+        return cardRepository.findByDueDateBetweenAndBoardList_Board_Owner_Username(now, tomorrow, username);
     }
 
     public Set<User> getCardCollaborators(Long cardId, String currentUser) {

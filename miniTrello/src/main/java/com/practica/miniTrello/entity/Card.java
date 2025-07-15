@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,12 +24,15 @@ public class Card {
     private String title;
     private String description;
 
+    @Column(nullable = false)
+    private Integer position;
+
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+
     @ManyToOne
     @JoinColumn(name = "list_id")
     private BoardList boardList;
-
-    @Column(nullable = false)
-    private Integer position;
 
     @ManyToMany
     @JoinTable(
@@ -37,5 +41,6 @@ public class Card {
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
     private Set<User> collaborators = new HashSet<>();
+
 
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -70,6 +71,22 @@ public class CardController {
                                                       Authentication auth) {
         return ResponseEntity.ok(cardService.getCardCollaborators(cardId, auth.getName()));
     }
+
+    @PutMapping("/{cardId}/due-date")
+    public ResponseEntity<Card> setDueDate(@PathVariable Long cardId,
+                                           @RequestBody Map<String, String> body,
+                                           Authentication auth) {
+        LocalDateTime dueDate = LocalDateTime.parse(body.get("dueDate"));
+        return ResponseEntity.ok(
+                cardService.updateDueDate(cardId, dueDate, auth.getName())
+        );
+    }
+
+    @GetMapping("/due/upcoming")
+    public ResponseEntity<List<Card>> getUpcoming(Authentication auth) {
+        return ResponseEntity.ok(cardService.getUpcomingDueCards(auth.getName()));
+    }
+
 
 
     @PutMapping("/{id}")
