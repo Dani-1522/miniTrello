@@ -30,4 +30,18 @@ public class CommentController {
     public ResponseEntity<List<CommentDTO>> list(@PathVariable Long cardId) {
         return ResponseEntity.ok(commentService.getComments(cardId));
     }
+
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentDTO> update(@PathVariable Long commentId,
+                                             @RequestBody Map<String, String> body,
+                                             Authentication auth) {
+        return ResponseEntity.ok(commentService.UpdateComment(commentId, body.get("text"), auth.getName()));
+    }
+    @DeleteMapping("/{commentId}")
+    public ResponseEntity<CommentDTO> delete(@PathVariable Long commentId,
+                                             Authentication auth) {
+        commentService.deleteComment(commentId, auth.getName());
+        return ResponseEntity.ok().build();
+    }
+
 }

@@ -8,6 +8,7 @@ import com.practica.miniTrello.repository.CardRepository;
 import com.practica.miniTrello.repository.CommentRepository;
 import com.practica.miniTrello.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -52,6 +53,27 @@ public class CommentService {
         return new CommentDTO(saved.getId(), saved.getText(), user.getUsername(), saved.getCreatedAt());
     }
 
+    public CommentDTO UpdateComment(Long commentId, String newText, String username){
+        Comment comment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("Comment not found"));
 
+        if (!comment.getAuthor().getUsername().equals(username)) {
+            throw new AccessDeniedException("username not match");
+        }
+
+        comment.setText(newText);
+        commentRepo.save(comment);
+        return new CommentDTO(comment.getId(), newText, username, comment.getCreatedAt());
+    }
+
+    public void deleteComment(Long commentId, String username){
+        Comment comment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new NoSuchElementException("Comment not found"));
+
+        if (!comment.getAuthor().getUsername().equals(username)) {
+            throw new AccessDeniedException("username not match");
+        }
+        commentRepo.delete(comment);
+    }
 
 }
