@@ -42,5 +42,13 @@ public class Card {
     )
     private Set<User> collaborators = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "card_tags",
+            joinColumns = @JoinColumn(name = "card_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new HashSet<>();
+
 
 }
