@@ -5,25 +5,28 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.ErrorResponse;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class BoardList {
+public class CardActivity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;
+    private String description;
+
+    private LocalDateTime timestamp;
 
     @ManyToOne
-    @JoinColumn(name = "boad_id")
-    private Board board;
+    private Card card;
 
-
-
+    @ManyToOne
+    private User user;
 }
+

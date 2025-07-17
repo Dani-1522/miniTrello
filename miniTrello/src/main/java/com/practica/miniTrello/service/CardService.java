@@ -26,6 +26,7 @@ public class CardService {
     private final CardRepository cardRepository;
     private final BoardListRepository listRepository;
     private final UserRepository userRepository;
+    private final CardActivityService activityService;
 
     public Card createCard(Long listId, String title, String description, String username) {
         BoardList list = listRepository.findById(listId)
@@ -49,7 +50,10 @@ public class CardService {
                 .position(nextPosition)
                 .build();
 
-        return cardRepository.save(card);
+        card = cardRepository.save(card);
+
+        activityService.logActivity(card.getId(), "Tarjeta creada", getUser(username));
+        return card;
     }
 
     @Transactional
@@ -64,13 +68,12 @@ public class CardService {
         BoardList newList = listRepository.findById(targetListId)
                 .orElseThrow(() -> new NoSuchElementException("Target list not found"));
 
-        // Reordenar tarjetas de destino
         List<Card> cards = cardRepository.findByBoardListId(targetListId)
                 .stream()
                 .sorted(Comparator.comparingInt(Card::getPosition))
                 .collect(Collectors.toList());
 
-        cards.add(newPosition, card); // insertamos la tarjeta en la posición deseada
+        cards.add(newPosition, card);
 
         for (int i = 0; i < cards.size(); i++) {
             Card c = cards.get(i);
@@ -79,6 +82,8 @@ public class CardService {
         }
 
         cardRepository.saveAll(cards);
+
+        activityService.logActivity(cardId, "Tarjeta movida a columna '" + newList.getTitle() + "'", getUser(username));
     }
 
     @Transactional
@@ -89,11 +94,14 @@ public class CardService {
         if (!card.getBoardList().getBoard().getOwner().getUsername().equals(currentUser)) {
             throw new AccessDeniedException("Only board owner can assign users.");
         }
+
         User userToAdd = userRepository.findByUsername(usernametoAdd)
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
 
         card.getCollaborators().add(userToAdd);
         cardRepository.save(card);
+
+        activityService.logActivity(cardId, "Usuario '" + usernametoAdd + "' asignado a la tarjeta", getUser(currentUser));
     }
 
     @Transactional
@@ -110,6 +118,8 @@ public class CardService {
 
         card.getCollaborators().remove(userToRemove);
         cardRepository.save(card);
+
+        activityService.logActivity(cardId, "Usuario '" + usernameToRemove + "' removido de la tarjeta", getUser(currentUser));
     }
 
     public Card updateDueDate(Long cardId, LocalDateTime dueDate, String username) {
@@ -119,8 +129,12 @@ public class CardService {
         if (!card.getBoardList().getBoard().getOwner().getUsername().equals(username)) {
             throw new AccessDeniedException("Only board owner can assign users.");
         }
+
         card.setDueDate(dueDate);
-        return cardRepository.save(card);
+        cardRepository.save(card);
+
+        activityService.logActivity(cardId, "Fecha de vencimiento actualizada", getUser(username));
+        return card;
     }
 
     public List<Card> getUpcomingDueCards(String username) {
@@ -139,9 +153,8 @@ public class CardService {
         return card.getCollaborators();
     }
 
-
     public List<Card> getCardsByList(Long listId, String username) {
-        getVerifiedList(listId, username); // Solo verificación de acceso
+        getVerifiedList(listId, username);
         return cardRepository.findByBoardListId(listId);
     }
 
@@ -150,14 +163,17 @@ public class CardService {
 
         card.setTitle(title);
         card.setDescription(description);
-        return cardRepository.save(card);
+        cardRepository.save(card);
+
+        activityService.logActivity(id, "Tarjeta actualizada", getUser(username));
+        return card;
     }
 
     public void deleteCard(Long id, String username) {
         Card card = getVerifiedCard(id, username);
+        activityService.logActivity(id, "Tarjeta eliminada", getUser(username));
         cardRepository.delete(card);
     }
-
 
     private BoardList getVerifiedList(Long listId, String username) {
         BoardList list = listRepository.findById(listId)
@@ -179,5 +195,10 @@ public class CardService {
         }
 
         return card;
+    }
+
+    private User getUser(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
     }
 }
