@@ -17,7 +17,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="miniTrello" options="-parameters" />
+      <module name="miniTrello" options="-parameters --add-exports jdk.jpackage/jdk.jpackage.internal=ALL-UNNAMED" />
     </option>
   </component>
 </project>
