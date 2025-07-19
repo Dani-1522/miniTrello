@@ -18,7 +18,6 @@ public class CardActivityService {
 
     private final CardActivityRepository activityRepo;
     private final CardRepository cardRepo;
-
     public void logActivity(Long cardId, String description, User user) {
         Card card = cardRepo.findById(cardId)
                 .orElseThrow(() -> new NoSuchElementException("Card not found"));
@@ -29,10 +28,8 @@ public class CardActivityService {
                 .timestamp(LocalDateTime.now())
                 .user(user)
                 .build();
-
         activityRepo.save(activity);
     }
-
     public List<CardActivity> getHistory(Long cardId) {
         return activityRepo.findByCardIdOrderByTimestampDesc(cardId);
     }
