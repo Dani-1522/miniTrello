@@ -27,6 +27,7 @@ public class CardService {
     private final BoardListRepository listRepository;
     private final UserRepository userRepository;
     private final CardActivityService activityService;
+    private final NotificationService notificationService;
 
     public Card createCard(Long listId, String title, String description, String username) {
         BoardList list = listRepository.findById(listId)
@@ -101,6 +102,12 @@ public class CardService {
         card.getCollaborators().add(userToAdd);
         cardRepository.save(card);
 
+        notificationService.notifyUser(
+                usernametoAdd,
+                "Has sido asignado a la tarjeta '" + card.getTitle() + "'"
+        );
+
+
         activityService.logActivity(cardId, "Usuario '" + usernametoAdd + "' asignado a la tarjeta", getUser(currentUser));
     }
 
@@ -119,6 +126,12 @@ public class CardService {
         card.getCollaborators().remove(userToRemove);
         cardRepository.save(card);
 
+        notificationService.notifyUser(
+                usernameToRemove,
+                "Has sido removido de la tarjeta '" + card.getTitle() + "'"
+        );
+
+
         activityService.logActivity(cardId, "Usuario '" + usernameToRemove + "' removido de la tarjeta", getUser(currentUser));
     }
 
@@ -133,7 +146,12 @@ public class CardService {
         card.setDueDate(dueDate);
         cardRepository.save(card);
 
-        activityService.logActivity(cardId, "Fecha de vencimiento actualizada", getUser(username));
+      
+        notificationService.notifyUser(
+                card.getBoardList().getBoard().getOwner().getUsername(),
+                "La tarjeta '" + card.getTitle() + "' tiene una nueva fecha de vencimiento: " + dueDate.toString()
+        );
+
         return card;
     }
 
