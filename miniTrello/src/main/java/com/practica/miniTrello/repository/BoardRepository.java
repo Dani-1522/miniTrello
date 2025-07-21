@@ -9,5 +9,7 @@ import java.util.List;
 @Repository
 public interface BoardRepository extends JpaRepository<Board, Long> {
     List<Board> findByOwnerUsername(String username);
+    List<Board> findByOwner_UsernameOrderByPosition(String username);
+
 
 }

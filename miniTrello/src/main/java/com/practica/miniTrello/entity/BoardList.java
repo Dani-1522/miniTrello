@@ -24,6 +24,7 @@ public class BoardList {
     @JoinColumn(name = "boad_id")
     private Board board;
 
-
+    @Column(name = "position")
+    private int position;
 
 }

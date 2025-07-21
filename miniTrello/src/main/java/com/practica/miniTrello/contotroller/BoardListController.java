@@ -2,11 +2,13 @@ package com.practica.miniTrello.contotroller;
 
 
 import com.practica.miniTrello.entity.BoardList;
+import com.practica.miniTrello.entity.User;
 import com.practica.miniTrello.service.BoardListService;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -41,6 +43,16 @@ public class BoardListController {
         return ResponseEntity.ok(
                 listService.updateList(id, body.get("title"), authentication.getName()));
     }
+    @PutMapping("/{boardId}/reorder")
+    public ResponseEntity<Void> reorderLists(
+            @PathVariable Long boardId,
+            @RequestBody List<Long> ids,
+            @AuthenticationPrincipal User user
+    ) {
+        listService.reorderLists(boardId, ids, user.getUsername());
+        return ResponseEntity.ok().build();
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,

@@ -31,5 +31,8 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tags = new ArrayList<>();
 
+    @Column(name = "position")
+    private int position;
+
 
 }

@@ -1,11 +1,13 @@
 package com.practica.miniTrello.contotroller;
 
 import com.practica.miniTrello.entity.Board;
+import com.practica.miniTrello.entity.User;
 import com.practica.miniTrello.service.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -46,6 +48,15 @@ public class BoardController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.FORBIDDEN).build());
     }
+    @PutMapping("/reorder")
+    public ResponseEntity<Void> reorderBoards(
+            @RequestBody List<Long> ids,
+            @AuthenticationPrincipal User user
+    ) {
+        boardService.reorderBoards(ids, user.getUsername());
+        return ResponseEntity.ok().build();
+    }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBoard(@PathVariable Long id, Principal principal) {

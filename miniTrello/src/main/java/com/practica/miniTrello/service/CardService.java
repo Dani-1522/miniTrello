@@ -146,7 +146,7 @@ public class CardService {
         card.setDueDate(dueDate);
         cardRepository.save(card);
 
-      
+
         notificationService.notifyUser(
                 card.getBoardList().getBoard().getOwner().getUsername(),
                 "La tarjeta '" + card.getTitle() + "' tiene una nueva fecha de vencimiento: " + dueDate.toString()

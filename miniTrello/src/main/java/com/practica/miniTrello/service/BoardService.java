@@ -4,13 +4,17 @@ import com.practica.miniTrello.entity.Board;
 import com.practica.miniTrello.entity.User;
 import com.practica.miniTrello.repository.BoardRepository;
 import com.practica.miniTrello.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,7 @@ public class BoardService {
         return boardRepository.findById(id);
     }
 
+
     public Optional<Board> updateBoard(Long id, Board updatedData, String username) {
         Optional<Board> optionalBoard = boardRepository.findById(id);
 
@@ -49,6 +54,25 @@ public class BoardService {
 
         return Optional.empty(); // No existe el board
     }
+    @Transactional
+    public void reorderBoards(List<Long> boardIds, String username) {
+        List<Board> boards = boardRepository.findByOwner_UsernameOrderByPosition(username);
+
+        Map<Long, Board> boardMap = boards.stream()
+                .collect(Collectors.toMap(Board::getId, Function.identity()));
+
+        for (int i = 0; i < boardIds.size(); i++) {
+            Long id = boardIds.get(i);
+            Board board = boardMap.get(id);
+
+            if (board != null && board.getOwner().getUsername().equals(username)) {
+                board.setPosition(i);
+            }
+        }
+
+        boardRepository.saveAll(boardMap.values());
+    }
+
     public void deleteBoard(Long id, String username) {
           Board board = boardRepository.findById(id)
                   .orElseThrow(()-> new NoSuchElementException("Board no found"));
