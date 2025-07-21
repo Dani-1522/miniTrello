@@ -24,6 +24,9 @@ public class Board {
     private String name;
     private String description;
 
+    @Column(name = "position")
+    private int position;
+
     @ManyToOne
     @JoinColumn(name = "owner_id")
     private User owner;
@@ -31,8 +34,8 @@ public class Board {
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tags = new ArrayList<>();
 
-    @Column(name = "position")
-    private int position;
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BoardMember> members = new ArrayList<>();
 
 
 }
