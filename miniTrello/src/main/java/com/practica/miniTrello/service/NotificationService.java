@@ -1,6 +1,7 @@
 package com.practica.miniTrello.service;
 
 
+import com.practica.miniTrello.DTOs.NotificationDTO;
 import com.practica.miniTrello.entity.Notification;
 import com.practica.miniTrello.entity.User;
 import com.practica.miniTrello.repository.NotificationRepository;
@@ -20,9 +21,10 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final RealtimeEventService realtimeEventService;
 
-    public void notifyUser(String useername,String message) {
-        User user = userRepository.findByUsername(useername)
+    public void notifyUser(String username, String message) {
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new NoSuchElementException("Usuario no encontrado"));
 
         Notification notification = Notification.builder()
@@ -31,12 +33,19 @@ public class NotificationService {
                 .read(false)
                 .createdAt(LocalDateTime.now())
                 .build();
-        notificationRepository.save(notification);
+
+        Notification saved = notificationRepository.save(notification);
+
+        realtimeEventService.sendNotification(saved); // envío en tiempo real
     }
 
-    public List<Notification> getUserNotifications(String username) {
-        return notificationRepository.findByRecipient_UsernameOrderByCreatedAtDesc(username);
+    public List<NotificationDTO> getUserNotifications(String username) {
+        return notificationRepository.findByRecipient_UsernameOrderByCreatedAtDesc(username)
+                .stream()
+                .map(this::toDTO)
+                .toList();
     }
+
     public void markAsRead(Long notificationId, String username) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NoSuchElementException("Notification no encontrado"));
@@ -47,4 +56,13 @@ public class NotificationService {
         notification.setRead(true);
         notificationRepository.save(notification);
     }
+    private NotificationDTO toDTO(Notification notif) {
+        return new NotificationDTO(
+                notif.getId(),
+                notif.getMessage(),
+                notif.isRead(),
+                notif.getCreatedAt()
+        );
+    }
+
 }
